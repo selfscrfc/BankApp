@@ -1,0 +1,10 @@
+syntax = "proto3";
+package transactions;
+import "SharedEntities/SharedEntities.proto";
+
+message PutRequest {
+  int32 usedId = 1;
+  int32 accountId = 2;
+  int32 amount = 3;
+  sharedEntities.Currency currency = 4;
+}

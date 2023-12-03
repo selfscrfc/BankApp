@@ -1,0 +1,44 @@
+syntax="proto3";
+package customers;
+option go_package = "/Customers";
+import "SharedEntities/SharedEntities.proto";
+
+service Customer {
+  rpc GetDetails(GetDetailsRequest) returns (GetDetailsResponse);
+  rpc Create(CreateRequest) returns (CreateResponse);
+  rpc Block(BlockRequest) returns (BlockResponse);
+}
+
+message GetDetailsRequest {
+  int32 id = 1;
+}
+
+message GetDetailsResponse {
+  string fullName = 1;
+  int32 yearCreated = 2;
+  int32 datetimeCreated = 3;
+  bool isBlocked = 4;
+}
+
+message CreateRequest {
+  string fullName = 1;
+  string login = 2;
+  string password = 3;
+}
+
+message CreateResponse {
+  int32 id = 1;
+  bool success = 2;
+  string error = 3;
+}
+
+message BlockRequest {
+  int32 blockId = 1;
+}
+
+message BlockResponse {
+  bool success = 1;
+  string error = 2;
+}
+
+
