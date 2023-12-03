@@ -1,4 +1,4 @@
-module PetBank
+module github.com/selfscrfc/PetBank
 
 go 1.21
 

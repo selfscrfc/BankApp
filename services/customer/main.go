@@ -1,7 +1,6 @@
 package customer
 
 import (
-	"../../PetBank/proto/Customers"
 	"flag"
 	"fmt"
 	"google.golang.org/grpc"
