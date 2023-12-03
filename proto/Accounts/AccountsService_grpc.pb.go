@@ -4,7 +4,7 @@
 // - protoc             v4.25.1
 // source: Accounts/AccountsService.proto
 
-package Accounts
+package account
 
 import (
 	context "context"
@@ -39,7 +39,7 @@ func NewAccountServiceClient(cc grpc.ClientConnInterface) AccountServiceClient {
 
 func (c *accountServiceClient) GetDetail(ctx context.Context, in *GetDetailsRequest, opts ...grpc.CallOption) (*GetDetailsResponse, error) {
 	out := new(GetDetailsResponse)
-	err := c.cc.Invoke(ctx, "/accounts.AccountService/GetDetail", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/PetBank.proto.account.AccountService/GetDetail", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +48,7 @@ func (c *accountServiceClient) GetDetail(ctx context.Context, in *GetDetailsRequ
 
 func (c *accountServiceClient) GetTransactionsHistory(ctx context.Context, in *GetTransactionsHistoryRequest, opts ...grpc.CallOption) (*GetTransactionsHistoryResponse, error) {
 	out := new(GetTransactionsHistoryResponse)
-	err := c.cc.Invoke(ctx, "/accounts.AccountService/GetTransactionsHistory", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/PetBank.proto.account.AccountService/GetTransactionsHistory", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +57,7 @@ func (c *accountServiceClient) GetTransactionsHistory(ctx context.Context, in *G
 
 func (c *accountServiceClient) Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*CreateResponse, error) {
 	out := new(CreateResponse)
-	err := c.cc.Invoke(ctx, "/accounts.AccountService/Create", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/PetBank.proto.account.AccountService/Create", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +66,7 @@ func (c *accountServiceClient) Create(ctx context.Context, in *CreateRequest, op
 
 func (c *accountServiceClient) Delete(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*DeleteResponse, error) {
 	out := new(DeleteResponse)
-	err := c.cc.Invoke(ctx, "/accounts.AccountService/Delete", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/PetBank.proto.account.AccountService/Delete", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +75,7 @@ func (c *accountServiceClient) Delete(ctx context.Context, in *DeleteRequest, op
 
 func (c *accountServiceClient) Block(ctx context.Context, in *BlockRequest, opts ...grpc.CallOption) (*BlockResponse, error) {
 	out := new(BlockResponse)
-	err := c.cc.Invoke(ctx, "/accounts.AccountService/Block", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/PetBank.proto.account.AccountService/Block", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +136,7 @@ func _AccountService_GetDetail_Handler(srv interface{}, ctx context.Context, dec
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/accounts.AccountService/GetDetail",
+		FullMethod: "/PetBank.proto.account.AccountService/GetDetail",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AccountServiceServer).GetDetail(ctx, req.(*GetDetailsRequest))
@@ -154,7 +154,7 @@ func _AccountService_GetTransactionsHistory_Handler(srv interface{}, ctx context
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/accounts.AccountService/GetTransactionsHistory",
+		FullMethod: "/PetBank.proto.account.AccountService/GetTransactionsHistory",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AccountServiceServer).GetTransactionsHistory(ctx, req.(*GetTransactionsHistoryRequest))
@@ -172,7 +172,7 @@ func _AccountService_Create_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/accounts.AccountService/Create",
+		FullMethod: "/PetBank.proto.account.AccountService/Create",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AccountServiceServer).Create(ctx, req.(*CreateRequest))
@@ -190,7 +190,7 @@ func _AccountService_Delete_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/accounts.AccountService/Delete",
+		FullMethod: "/PetBank.proto.account.AccountService/Delete",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AccountServiceServer).Delete(ctx, req.(*DeleteRequest))
@@ -208,7 +208,7 @@ func _AccountService_Block_Handler(srv interface{}, ctx context.Context, dec fun
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/accounts.AccountService/Block",
+		FullMethod: "/PetBank.proto.account.AccountService/Block",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AccountServiceServer).Block(ctx, req.(*BlockRequest))
@@ -220,7 +220,7 @@ func _AccountService_Block_Handler(srv interface{}, ctx context.Context, dec fun
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var AccountService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "accounts.AccountService",
+	ServiceName: "PetBank.proto.account.AccountService",
 	HandlerType: (*AccountServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

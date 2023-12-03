@@ -4,7 +4,7 @@
 // - protoc             v4.25.1
 // source: Customers/CustomerService.proto
 
-package Customers
+package customers
 
 import (
 	context "context"
@@ -37,7 +37,7 @@ func NewCustomerClient(cc grpc.ClientConnInterface) CustomerClient {
 
 func (c *customerClient) GetDetails(ctx context.Context, in *GetDetailsRequest, opts ...grpc.CallOption) (*GetDetailsResponse, error) {
 	out := new(GetDetailsResponse)
-	err := c.cc.Invoke(ctx, "/customers.Customer/GetDetails", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/PetBank.proto.customers.Customer/GetDetails", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +46,7 @@ func (c *customerClient) GetDetails(ctx context.Context, in *GetDetailsRequest, 
 
 func (c *customerClient) Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*CreateResponse, error) {
 	out := new(CreateResponse)
-	err := c.cc.Invoke(ctx, "/customers.Customer/Create", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/PetBank.proto.customers.Customer/Create", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +55,7 @@ func (c *customerClient) Create(ctx context.Context, in *CreateRequest, opts ...
 
 func (c *customerClient) Block(ctx context.Context, in *BlockRequest, opts ...grpc.CallOption) (*BlockResponse, error) {
 	out := new(BlockResponse)
-	err := c.cc.Invoke(ctx, "/customers.Customer/Block", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/PetBank.proto.customers.Customer/Block", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +108,7 @@ func _Customer_GetDetails_Handler(srv interface{}, ctx context.Context, dec func
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/customers.Customer/GetDetails",
+		FullMethod: "/PetBank.proto.customers.Customer/GetDetails",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CustomerServer).GetDetails(ctx, req.(*GetDetailsRequest))
@@ -126,7 +126,7 @@ func _Customer_Create_Handler(srv interface{}, ctx context.Context, dec func(int
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/customers.Customer/Create",
+		FullMethod: "/PetBank.proto.customers.Customer/Create",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CustomerServer).Create(ctx, req.(*CreateRequest))
@@ -144,7 +144,7 @@ func _Customer_Block_Handler(srv interface{}, ctx context.Context, dec func(inte
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/customers.Customer/Block",
+		FullMethod: "/PetBank.proto.customers.Customer/Block",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CustomerServer).Block(ctx, req.(*BlockRequest))
@@ -156,7 +156,7 @@ func _Customer_Block_Handler(srv interface{}, ctx context.Context, dec func(inte
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Customer_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "customers.Customer",
+	ServiceName: "PetBank.proto.customers.Customer",
 	HandlerType: (*CustomerServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

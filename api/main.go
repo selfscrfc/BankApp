@@ -1,11 +1,11 @@
 package main
 
 import (
-	"PetBank/config"
-	"PetBank/pkg/logger"
-	"PetBank/pkg/routes"
 	"flag"
 	"github.com/gofiber/fiber/v2"
+	"github.com/selfscrfc/PetBank/config"
+	"github.com/selfscrfc/PetBank/pkg/logger"
+	"github.com/selfscrfc/PetBank/pkg/routes"
 	"google.golang.org/grpc"
 )
 

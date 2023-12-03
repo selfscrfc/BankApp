@@ -1,11 +1,11 @@
 package controllers
 
 import (
-	"PetBank/api/models"
-	"PetBank/proto/Customers"
 	"context"
 	"errors"
 	"github.com/gofiber/fiber/v2"
+	"github.com/selfscrfc/PetBank/api/models"
+	"github.com/selfscrfc/PetBank/proto/Customers"
 	"google.golang.org/grpc"
 	"time"
 )

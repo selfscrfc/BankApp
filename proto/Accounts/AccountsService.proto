@@ -1,7 +1,13 @@
 syntax="proto3";
-package accounts;
-option go_package = "/Accounts";
-import "SharedEntities/SharedEntities.proto";
+package PetBank.proto.account;
+option go_package = "/account";
+
+enum Currency {
+  RUBLES = 0;
+  DOLLARS = 1;
+  EURO = 2;
+}
+
 
 service AccountService {
   rpc GetDetail(GetDetailsRequest) returns (GetDetailsResponse);
@@ -19,7 +25,7 @@ message GetDetailsRequest {
 message GetDetailsResponse {
   bool isCredit = 1;
   int32 balance = 2;
-  sharedEntities.Currency currency = 3;
+  Currency currency = 3;
 }
 
 message GetTransactionsHistoryRequest {
@@ -35,7 +41,7 @@ message GetTransactionsHistoryResponse {
 message CreateRequest {
   int32 userId = 1;
   bool isCredit = 2;
-  sharedEntities.Currency currency = 3;
+  Currency currency = 3;
 }
 
 message CreateResponse {

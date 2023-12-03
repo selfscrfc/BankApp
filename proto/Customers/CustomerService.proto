@@ -1,7 +1,6 @@
 syntax="proto3";
-package customers;
-option go_package = "/Customers";
-import "SharedEntities/SharedEntities.proto";
+package PetBank.proto.customers;
+option go_package = "/customers";
 
 service Customer {
   rpc GetDetails(GetDetailsRequest) returns (GetDetailsResponse);

@@ -1,9 +1,0 @@
-syntax = "proto3";
-package sharedEntities;
-option go_package = "/SharedEntities";
-
-enum Currency {
-  RUBLES = 0;
-  DOLLARS = 1;
-  EURO = 2;
-}

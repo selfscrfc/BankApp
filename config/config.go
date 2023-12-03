@@ -43,7 +43,7 @@ func LoadConfig() (*Config, error) {
 	path := os.Getenv("CONFIG_PATH")
 	var cfgName string
 	if path == "" {
-		path = "."
+		path = "../"
 		cfgName = "./config/config-local"
 	} else {
 		cfgName = "./config/config-docker"
