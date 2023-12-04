@@ -2,30 +2,39 @@ package postgres
 
 import (
 	"context"
-	"github.com/jmoiron/sqlx"
+	"database/sql"
+	qb "github.com/Masterminds/squirrel"
 	"github.com/opentracing/opentracing-go"
 	"github.com/selfscrfc/PetBank/api/models"
-	"github.com/selfscrfc/PetBank/utils"
+)
+
+const (
+	TableCustomers  = "customers"
+	ColumnsCustomer = "id, fullname, time, login, password, isblocked"
 )
 
 type customerRepo struct {
-	db *sqlx.DB
+	db *sql.DB
 }
-)
 
-func newCustomerRepo(db *sqlx.DB) *customerRepo {
+func NewCustomerRepo(db *sql.DB) *customerRepo {
 	return &customerRepo{db: db}
 }
 
-
-func  (db *customerRepo) Create(ctx context.Context, customer *models.Customer) {
+func (cr *customerRepo) Create(ctx context.Context, c *models.Customer) (*models.Customer, error) {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "newsRepo.Create")
 	defer span.Finish()
 
-	customer := models.Customer{}
-	utils.PostgreSQLConnection()
-	db, err := utils
+	query := qb.Insert(TableCustomers).
+		Columns(ColumnsCustomer).
+		Values(c.Id, c.FullName, c.TimeCreated, c.Login, c.Password, "false").
+		PlaceholderFormat(qb.Question).
+		RunWith(cr.db)
+
+	_, err := query.ExecContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+
+	return c, nil
 }

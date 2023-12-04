@@ -1,14 +1,14 @@
 package utils
 
 import (
+	"database/sql"
 	"fmt"
-	"github.com/jmoiron/sqlx"
 	"os"
 	"strconv"
 	"time"
 )
 
-func PostgreSQLConnection() (*sqlx.DB, error) {
+func PostgreSQLConnection() (*sql.DB, error) {
 	maxConn, _ := strconv.Atoi(os.Getenv("DB_MAX_CONNECTIONS"))
 	maxIdleConn, _ := strconv.Atoi(os.Getenv("DB_MAX_IDLE_CONNECTIONS"))
 	maxLifetimeConn, _ := strconv.Atoi(os.Getenv("DB_MAX_LIFETIME_CONNECTIONS"))
@@ -23,7 +23,8 @@ func PostgreSQLConnection() (*sqlx.DB, error) {
 		os.Getenv("DB_SSL_MODE"),
 	)
 
-	db, err := sqlx.Connect("pgx", url)
+	db, err := sql.Open("pgx", url)
+
 	if err != nil {
 		return nil, fmt.Errorf("error, not connected to database, %w", err)
 	}
