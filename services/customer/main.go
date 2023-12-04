@@ -1,31 +1,18 @@
 package main
 
 import (
-	"context"
-	"flag"
 	"fmt"
-	"github.com/selfscrfc/PetBank/proto/Customers"
+	cServer "github.com/selfscrfc/PetBank/customer/server"
+	"github.com/selfscrfc/PetBankProtos/proto/Customers"
 	"google.golang.org/grpc"
 	"log"
 	"net"
 )
 
-type CustomerServer struct {
-	Customers.UnimplementedCustomerServer
-}
-
-func (c CustomerServer) Create(ctx context.Context, request *Customers.CreateRequest) (*Customers.CreateResponse, error) {
-	resp, err := toPSQL()
-	if err != nil {
-		return nil, err
-	}
-	return resp, nil
-}
-
 var port = 50051
 
 func main() {
-	flag.Parse()
+	log.Println("Customer Service Starte on port: ", port)
 	lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", port))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
@@ -33,14 +20,6 @@ func main() {
 
 	grpcServer := grpc.NewServer()
 
-	Customers.RegisterCustomerServer(grpcServer, CustomerServer{})
+	customers.RegisterCustomerServer(grpcServer, cServer.CustomerServer{})
 	grpcServer.Serve(lis)
-}
-
-func toPSQL() (*Customers.CreateResponse, error) {
-	return &Customers.CreateResponse{
-		Id:      1,
-		Success: true,
-		Error:   "",
-	}, nil
 }

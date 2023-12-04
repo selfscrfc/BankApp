@@ -3,10 +3,17 @@ package routes
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/selfscrfc/PetBank/api/controllers"
-	"google.golang.org/grpc"
+	account "github.com/selfscrfc/PetBankProtos/proto/Accounts"
+	customers "github.com/selfscrfc/PetBankProtos/proto/Customers"
 )
 
-func PublicRoutes(a *fiber.App, customerService *grpc.ClientConn) {
-	a.Post("/sign/up", func(ctx *fiber.Ctx) error { return controllers.CreateUser(ctx, customerService) })
-	//a.Post("/sign/in")
+func PublicRoutes(a *fiber.App, customerClient *customers.CustomerClient,
+	accountsClient *account.AccountServiceClient) {
+
+	a.Post("/sign/up", func(ctx *fiber.Ctx) error {
+		return controllers.CreateUser(ctx, customerClient)
+	})
+	a.Post("/sign/in", func(ctx *fiber.Ctx) error {
+		return controllers.SignInUser(ctx, customerClient)
+	})
 }

@@ -1,0 +1,95 @@
+basePath: /
+host: localhost:3000
+info:
+  contact: {}
+  license:
+    name: Apache 2.0
+  title: PetBank API
+  version: "1.0"
+paths:
+  /sign/in:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Sign in
+      tags:
+      - Users
+  /sign/up/:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: data
+        in: body
+        name: data
+        required: true
+        schema:
+          type: string
+      - description: data
+        in: body
+        name: data
+        required: true
+        schema:
+          type: string
+      - description: data
+        in: body
+        name: data
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: create
+      tags:
+      - Users
+  /user:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Get user details with id
+      tags:
+      - Users
+  /user/{id}/block:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Block user by himself with id
+      tags:
+      - Users
+swagger: "2.0"
