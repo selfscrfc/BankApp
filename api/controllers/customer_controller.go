@@ -42,17 +42,12 @@ func CreateUser(c *fiber.Ctx, client *Customers.CustomerClient) error {
 	}
 
 	customer := &models.Customer{
-		Id:          uuid.New(),
-		TimeCreated: time.Now(),
-		FullName:    sign.FullName,
-		Login:       sign.Login,
-		Password:    utils.GeneratePassword(sign.Password),
-		IsBlocked:   false,
+		FullName: sign.FullName,
+		Login:    sign.Login,
+		Password: sign.Password,
 	}
 
-	_, err := (*client).Create(ctx, &Customers.CreateRequest{
-		Id:       customer.Id.String(),
-		Time:     customer.TimeCreated.Unix(),
+	resp, err := (*client).Create(ctx, &Customers.CreateRequest{
 		FullName: customer.FullName,
 		Login:    customer.Login,
 		Password: customer.Password,
@@ -64,6 +59,14 @@ func CreateUser(c *fiber.Ctx, client *Customers.CustomerClient) error {
 			"msg":   err.Error(),
 		})
 	}
+
+	customer.Id, err = uuid.Parse(resp.Id)
+	if err != nil {
+		return err
+	}
+	customer.TimeCreated = time.Unix(resp.Time, 0)
+	customer.IsBlocked = false
+	customer.Password = ""
 
 	return c.JSON(fiber.Map{
 		"error":    false,
@@ -161,33 +164,33 @@ func BlockUser(c *fiber.Ctx, client *Customers.CustomerClient) error {
 // @Success 200
 // @Router /sign/in [post]
 func SignInUser(c *fiber.Ctx, client *Customers.CustomerClient) error {
-	ctx := context.Background()
-
-	sign := &models.Sign{}
-	validator := utils.NewValidator()
-
-	customer := &models.Customer{}
-
-	if err := c.BodyParser(customer); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": true,
-			"msg":   err.Error(),
-		})
-	}
-
-	resp, err := (*client).Block(ctx, &Customers.BlockRequest{
-		BlockId: customer.Id,
-	})
-
-	if resp.Success {
-		return c.Status(fiber.StatusConflict).JSON(fiber.Map{
-			"error": true,
-			"msg":   err.Error(),
-		})
-	}
-
-	return c.JSON(fiber.Map{
-		"error": false,
-		"msg":   nil,
-	})
+	//ctx := context.Background()
+	//
+	//sign := &models.SignIn{}
+	//validator := utils.NewValidator()
+	//
+	//customer := &models.Customer{}
+	//
+	//if err := c.BodyParser(customer); err != nil {
+	//	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+	//		"error": true,
+	//		"msg":   err.Error(),
+	//	})
+	//}
+	//
+	//resp, err := (*client).Block(ctx, &Customers.BlockRequest{
+	//	BlockId: customer.Id,
+	//})
+	//
+	//if resp.Success {
+	//	return c.Status(fiber.StatusConflict).JSON(fiber.Map{
+	//		"error": true,
+	//		"msg":   err.Error(),
+	//	})
+	//}
+	//
+	//return c.JSON(fiber.Map{
+	//	"error": false,
+	//	"msg":   nil,
+	//})
 }

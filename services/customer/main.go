@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+
 	cServer "github.com/selfscrfc/PetBank/customer/server"
 	"github.com/selfscrfc/PetBank/utils"
 	"github.com/selfscrfc/PetBankProtos/proto/Customers"
@@ -11,18 +12,21 @@ import (
 	"net"
 )
 
-var db *sql.DB
+var DB *sql.DB
 
 var port = 50051
 
 func main() {
-	log.Println("Customer Service Starte on port: ", port)
+	log.Println("Customer Service Starts on port: ", port)
 	lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", port))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
+	cServer.DB, err = utils.PostgreSQLConnection()
 
-	db, err := utils.PostgreSQLConnection()
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
 
 	grpcServer := grpc.NewServer()
 
