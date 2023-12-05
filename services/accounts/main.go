@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 	"github.com/pressly/goose"
+	aServer "github.com/selfscrfc/PetBank/proto/Accounts/grpc"
 	"github.com/selfscrfc/PetBank/utils"
+	account "github.com/selfscrfc/PetBankProtos/proto/Accounts"
 	"google.golang.org/grpc"
 	"log"
 	"net"
@@ -11,7 +13,6 @@ import (
 )
 
 func main() {
-
 	port := os.Getenv("SERVER_PORT")
 
 	log.Println("Account Service Starts on port:", port)
@@ -27,12 +28,12 @@ func main() {
 	if err = goose.Up(aServer.DB, "migrations"); err != nil {
 		log.Fatalf(err.Error())
 	}
-	w
+
 	grpcServer := grpc.NewServer()
 
-	customers.RegisterAccountsServer(grpcServer, aServer.AccountsServer{})
+	account.RegisterAccountServiceServer(grpcServer, aServer.AccountsServer{})
 
-	if err := grpcServer.Serve(lis); err != nil {
+	if err = grpcServer.Serve(lis); err != nil {
 		log.Fatalf(err.Error())
 	}
 }

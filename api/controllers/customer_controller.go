@@ -17,7 +17,7 @@ import (
 // @Produce json
 // @Param data body string true "data"
 // @Success 200 {object} models.Customer
-// @Router /sign/up/ [post]
+// @Router /signup [post]
 func CreateCustomer(c *fiber.Ctx, client *Customers.CustomerClient) error {
 	ctx := context.Background()
 
@@ -87,17 +87,10 @@ func CreateCustomer(c *fiber.Ctx, client *Customers.CustomerClient) error {
 func GetCustomerDetails(c *fiber.Ctx, client *Customers.CustomerClient) error {
 	ctx := context.Background()
 
-	customer := &models.Customer{}
-
-	if err := c.BodyParser(customer); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": true,
-			"msg":   err.Error(),
-		})
-	}
+	id := c.Params("id")
 
 	resp, err := (*client).GetDetails(ctx, &Customers.GetDetailsRequest{
-		Id: customer.Id.String(),
+		Id: id,
 	})
 
 	if err != nil {
@@ -106,7 +99,14 @@ func GetCustomerDetails(c *fiber.Ctx, client *Customers.CustomerClient) error {
 			"msg":   err.Error(),
 		})
 	}
-
+	id_, err := uuid.Parse(id)
+	if err != nil {
+		return c.Status(fiber.StatusConflict).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+	customer := &models.Customer{Id: id_}
 	customer.TimeCreated = time.Unix(resp.Time, 0)
 	customer.FullName = resp.FullName
 	customer.IsBlocked = resp.IsBlocked
@@ -124,26 +124,19 @@ func GetCustomerDetails(c *fiber.Ctx, client *Customers.CustomerClient) error {
 // @Tags Users
 // @Accept json
 // @Produce json
-// @Param id body string true "id"
+// @Param id path string true "id"
 // @Success 200
-// @Router /user/{id}/block [post]
+// @Router /user/{id}/block [get]
 func BlockCustomer(c *fiber.Ctx, client *Customers.CustomerClient) error {
 	ctx := context.Background()
 
-	var id string
+	id := c.Params("id")
 
-	if err := c.BodyParser(id); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": true,
-			"msg":   err.Error(),
-		})
-	}
-
-	resp, err := (*client).Block(ctx, &Customers.BlockRequest{
+	_, err := (*client).Block(ctx, &Customers.BlockRequest{
 		BlockId: id,
 	})
 
-	if resp.Success {
+	if err != nil {
 		return c.Status(fiber.StatusConflict).JSON(fiber.Map{
 			"error": true,
 			"msg":   err.Error(),
@@ -163,7 +156,7 @@ func BlockCustomer(c *fiber.Ctx, client *Customers.CustomerClient) error {
 // @Produce json
 // @Param id body string true "id"
 // @Success 200 {object} models.Customer
-// @Router /sign/in [post]
+// @Router /signin [post]
 func SignInCustomer(c *fiber.Ctx, client *Customers.CustomerClient) error {
 	ctx := context.Background()
 
@@ -184,7 +177,7 @@ func SignInCustomer(c *fiber.Ctx, client *Customers.CustomerClient) error {
 	if err != nil {
 		return c.Status(fiber.StatusConflict).JSON(fiber.Map{
 			"error": true,
-			"msg":   "Authorizatione error: " + err.Error(),
+			"msg":   "Authorization error: " + err.Error(),
 		})
 	}
 
@@ -213,7 +206,7 @@ func SignInCustomer(c *fiber.Ctx, client *Customers.CustomerClient) error {
 // @Accept json
 // @Produce json
 // @Success 200 {array} models.Customer
-// @Router /getall [get]
+// @Router /getallusers [get]
 func GetAllCustomers(c *fiber.Ctx, client *Customers.CustomerClient) error {
 	ctx := context.Background()
 

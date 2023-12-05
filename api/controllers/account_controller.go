@@ -8,6 +8,14 @@ import (
 	Accounts "github.com/selfscrfc/PetBankProtos/proto/Accounts"
 )
 
+// CreateAccount	godoc
+// @Summary		create
+// @Tags Accounts
+// @Accept json
+// @Produce json
+// @Param data body string true "Userid, IsCredit, Balance, Currency"
+// @Success 200 {object} models.Account
+// @Router /newaccount [post]
 func CreateAccount(c *fiber.Ctx, client *Accounts.AccountServiceClient) error {
 	ctx := context.Background()
 
@@ -21,7 +29,6 @@ func CreateAccount(c *fiber.Ctx, client *Accounts.AccountServiceClient) error {
 	}
 
 	resp, err := (*client).Create(ctx, &Accounts.CreateRequest{
-		Id:       acc.Id.String(),
 		UserId:   acc.UserId.String(),
 		IsCredit: acc.IsCredit,
 		Balance:  acc.Balance,
@@ -61,6 +68,15 @@ func CreateAccount(c *fiber.Ctx, client *Accounts.AccountServiceClient) error {
 	})
 }
 
+// GetAccountDetails	godoc
+// @Summary		create
+// @Tags Accounts
+// @Accept json
+// @Produce json
+// @Param id path string true "id"
+// @Param userid path string true "userid"
+// @Success 200 {object} models.Account
+// @Router /getaccountdetails [get]
 func GetAccountDetails(c *fiber.Ctx, client *Accounts.AccountServiceClient) error {
 	ctx := context.Background()
 
@@ -96,6 +112,12 @@ func GetAccountDetails(c *fiber.Ctx, client *Accounts.AccountServiceClient) erro
 	})
 }
 
+// GetAllAccounts	godoc
+// @Summary		create
+// @Tags Accounts
+// @Produce json
+// @Success 200 {array} models.Account
+// @Router /getallaccounts [get]
 func GetAllAccounts(c *fiber.Ctx, client *Accounts.AccountServiceClient) error {
 	ctx := context.Background()
 
@@ -117,10 +139,26 @@ func GetAllAccounts(c *fiber.Ctx, client *Accounts.AccountServiceClient) error {
 	})
 }
 
+// BlockAccount	godoc
+// @Summary		create
+// @Tags Accounts
+// @Accept json
+// @Produce json
+// @Param id path string true "id"
+// @Param userid path string true "userid"
+// @Success 200 {object} models.Account
+// @Router /blockaccount [get]
 func BlockAccount(c *fiber.Ctx, client *Accounts.AccountServiceClient) error {
 	ctx := context.Background()
 
 	acc := &Accounts.Account{}
+
+	if err := c.BodyParser(acc); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": true,
+			"msg":   "parse error: " + err.Error(),
+		})
+	}
 
 	resp, err := (*client).Block(ctx, &Accounts.BlockRequest{
 		Id:     acc.Id,
@@ -137,5 +175,45 @@ func BlockAccount(c *fiber.Ctx, client *Accounts.AccountServiceClient) error {
 	return c.JSON(fiber.Map{
 		"error": false,
 		"msg":   nil,
+	})
+}
+
+// RW	godoc
+// @Summary		create
+// @Tags Accounts
+// @Accept json
+// @Produce json
+// @Param data body string true "data"
+// @Success 200 {object} models.Account
+// @Router /balance [post]
+func RW(c *fiber.Ctx, client *Accounts.AccountServiceClient, type_ bool) error {
+	ctx := context.Background()
+
+	req := &Accounts.RWRequest{}
+
+	if err := c.BodyParser(req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": true,
+			"msg":   "parse error: " + err.Error(),
+		})
+	}
+
+	resp, err := (*client).RW(ctx, &Accounts.RWRequest{
+		AId:    req.AId,
+		UId:    req.UId,
+		Amount: req.Amount,
+	})
+
+	if err != nil {
+		return c.Status(fiber.StatusConflict).JSON(fiber.Map{
+			"error": true,
+			"msg":   "rpc response error: " + err.Error(),
+		})
+	}
+
+	return c.JSON(fiber.Map{
+		"error":   false,
+		"msg":     "successful",
+		"account": resp,
 	})
 }

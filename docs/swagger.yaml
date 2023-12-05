@@ -1,5 +1,18 @@
 basePath: /
 definitions:
+  models.Account:
+    properties:
+      balance:
+        type: integer
+      currency:
+        type: integer
+      id:
+        type: string
+      isCredit:
+        type: boolean
+      userId:
+        type: string
+    type: object
   models.Customer:
     properties:
       blocked:
@@ -23,7 +36,92 @@ info:
   title: PetBank API
   version: "1.0"
 paths:
-  /getall:
+  /balance:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: data
+        in: body
+        name: data
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Account'
+      summary: create
+      tags:
+      - Accounts
+  /blockaccount:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: userid
+        in: path
+        name: userid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Account'
+      summary: create
+      tags:
+      - Accounts
+  /getaccountdetails:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: userid
+        in: path
+        name: userid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Account'
+      summary: create
+      tags:
+      - Accounts
+  /getallaccounts:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Account'
+            type: array
+      summary: create
+      tags:
+      - Accounts
+  /getallusers:
     get:
       consumes:
       - application/json
@@ -39,7 +137,28 @@ paths:
       summary: get all
       tags:
       - Users
-  /sign/in:
+  /newaccount:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Userid, IsCredit, Balance, Currency
+        in: body
+        name: data
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Account'
+      summary: create
+      tags:
+      - Accounts
+  /signin:
     post:
       consumes:
       - application/json
@@ -60,7 +179,7 @@ paths:
       summary: Sign in
       tags:
       - Users
-  /sign/up/:
+  /signup:
     post:
       consumes:
       - application/json
@@ -81,7 +200,7 @@ paths:
       summary: create
       tags:
       - Users
-  /user:
+  /user/{id}:
     get:
       consumes:
       - application/json
@@ -102,16 +221,15 @@ paths:
       tags:
       - Users
   /user/{id}/block:
-    post:
+    get:
       consumes:
       - application/json
       parameters:
       - description: id
-        in: body
+        in: path
         name: id
         required: true
-        schema:
-          type: string
+        type: string
       produces:
       - application/json
       responses:

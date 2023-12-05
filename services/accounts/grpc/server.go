@@ -1,15 +1,11 @@
-package grpccustomerserver
+package grpcaccountsserver
 
 import (
 	"context"
 	"database/sql"
 	qb "github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
-	"github.com/selfscrfc/PetBank/api/models"
-	"github.com/selfscrfc/PetBank/utils"
 	Accounts "github.com/selfscrfc/PetBankProtos/proto/Accounts"
-	customers "github.com/selfscrfc/PetBankProtos/proto/Customers"
-	"time"
 )
 
 var DB *sql.DB
@@ -23,19 +19,18 @@ const (
 	ColumnsAccounts = "id, userid, iscredit, balance, currency, isblocked"
 )
 
-func (c AccountsServer) Create(ctx context.Context, request *Accounts.CreateRequest) (*Accounts.CreateResponse, error) {
-	ac := &models.Customer{}
-		Id:          uuid.New(),
-		TimeCreated: time.Now(),
-		FullName:    request.FullName,
-		Login:       request.Login,
-		Password:    utils.GeneratePassword(request.Password),
-		IsBlocked:   false,
+func (a AccountsServer) Create(ctx context.Context, request *Accounts.CreateRequest) (*Accounts.CreateResponse, error) {
+	ac := &Accounts.CreateResponse{
+		Id:       uuid.New().String(),
+		UserId:   request.UserId,
+		IsCredit: request.IsCredit,
+		Balance:  request.Balance,
+		Currency: request.Currency,
 	}
 
-	query := qb.Insert(TableCustomers).
-		Columns(ColumnsCustomer).
-		Values(cs.Id.String(), cs.FullName, cs.TimeCreated.Unix(), cs.Login, cs.Password, cs.IsBlocked).
+	query := qb.Insert(TableAccounts).
+		Columns(ColumnsAccounts).
+		Values(ac.Id, ac.UserId, ac.IsCredit, ac.Balance, ac.Currency, false).
 		PlaceholderFormat(qb.Dollar).
 		RunWith(DB)
 
@@ -44,27 +39,18 @@ func (c AccountsServer) Create(ctx context.Context, request *Accounts.CreateRequ
 		return nil, err
 	}
 
-	return &customers.CreateResponse{
-		Id:       cs.Id.String(),
-		FullName: cs.FullName,
-		Time:     cs.TimeCreated.Unix(),
-		Login:    cs.Login,
-		Password: "",
-	}, nil
+	return ac, nil
 }
 
-func (c CustomerServer) GetDetails(ctx context.Context, request *customers.GetDetailsRequest) (*customers.GetDetailsResponse, error) {
-	id_, err := uuid.Parse(request.Id)
-	if err != nil {
-		return nil, err
-	}
-	cs := &models.Customer{
-		Id: id_,
+func (a AccountsServer) GetDetails(ctx context.Context, request *Accounts.GetDetailsRequest) (*Accounts.GetDetailsResponse, error) {
+	ac := &Accounts.GetDetailsResponse{
+		Id:     request.Id,
+		UserId: request.UserId,
 	}
 
-	query := qb.Select(ColumnsCustomer).
-		From(TableCustomers).
-		Where("id = $?", cs.Id.String()).
+	query := qb.Select(ColumnsAccounts).
+		From(TableAccounts).
+		Where("(id = $?) AND (userid = $?)", ac.Id, ac.UserId).
 		RunWith(DB)
 
 	res, err := query.Query()
@@ -73,62 +59,34 @@ func (c CustomerServer) GetDetails(ctx context.Context, request *customers.GetDe
 	}
 
 	res.Next()
-	err = res.Scan(&cs.Id, &cs.FullName, &cs.TimeCreated, &cs.Login, &cs.Password, &cs.IsBlocked)
+	err = res.Scan(&ac.Id, &ac.UserId, &ac.IsCredit, &ac.Balance, &ac.Currency, &ac.IsBlocked)
 
 	if err != nil {
 		return nil, err
 	}
 
-	cs.Password = ""
-
-	return &customers.GetDetailsResponse{
-		Id:        cs.Id.String(),
-		FullName:  cs.FullName,
-		Time:      cs.TimeCreated.Unix(),
-		Login:     cs.Login,
-		IsBlocked: cs.IsBlocked,
-	}, nil
+	return ac, nil
 }
 
-func (c CustomerServer) Block(ctx context.Context, request *customers.BlockRequest) (*customers.BlockResponse, error) {
-	id_, err := uuid.Parse(request.BlockId)
-	if err != nil {
-		return nil, err
-	}
-	cs := &models.Customer{
-		Id: id_,
-	}
-
-	query := qb.Update(TableCustomers).
-		Set("isblocked", true).
-		Where("id = $?", cs.Id.String()).
+func (a AccountsServer) Block(ctx context.Context, request *Accounts.BlockRequest) (*Accounts.BlockResponse, error) {
+	query := qb.Update(TableAccounts).
+		Set("isblocked=$1", true).
+		Where("(id=$2)AND(userid=$3)", request.Id, request.UserId).
+		PlaceholderFormat(qb.Dollar).
 		RunWith(DB)
 
-	res, err := query.Query()
+	_, err := query.Exec()
 	if err != nil {
 		return nil, err
 	}
-
-	res.Next()
-	err = res.Scan(&cs.Id, &cs.FullName, &cs.TimeCreated, &cs.Login, &cs.Password, &cs.IsBlocked)
-	if err != nil {
-		return nil, err
-	}
-
-	cs.Password = ""
-
-	return &customers.BlockResponse{
-		Success: true,
-	}, nil
+	return &Accounts.BlockResponse{Success: true}, nil
 }
 
-func (c CustomerServer) GetAll(ctx context.Context, request *customers.GetAllRequest) (*customers.GetAllResponse, error) {
-	csa := make([]*customers.CustomerEntity, 0)
-	mock := ""
-	mockp := &mock
+func (a AccountsServer) GetAll(ctx context.Context, request *Accounts.GetAllRequest) (*Accounts.GetAllResponse, error) {
+	acs := make([]*Accounts.Account, 0)
 
 	query := qb.Select("*").
-		From(TableCustomers).
+		From(TableAccounts).
 		RunWith(DB)
 
 	res, err := query.Query()
@@ -137,16 +95,15 @@ func (c CustomerServer) GetAll(ctx context.Context, request *customers.GetAllReq
 	}
 
 	for res.Next() {
-		cs := &customers.CustomerEntity{}
-		err = res.Scan(&cs.Id, &cs.FullName, &cs.Time, &cs.Login, mockp, &cs.IsBlocked)
+		ac := &Accounts.Account{}
+		err = res.Scan(&ac.Id, &ac.UserId, &ac.IsCredit, &ac.Balance, &ac.IsBlocked, &ac.IsBlocked)
 		if err != nil {
 			return nil, err
 		}
-		csa = append(csa, cs)
+		acs = append(acs, ac)
 	}
-	*mockp = ""
 
-	return &customers.GetAllResponse{
-		Customers: csa,
+	return &Accounts.GetAllResponse{
+		Accounts: acs,
 	}, nil
 }

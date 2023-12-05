@@ -10,10 +10,10 @@ import (
 func PublicRoutes(a *fiber.App, customerClient *customers.CustomerClient,
 	accountsClient *account.AccountServiceClient) {
 
-	a.Post("/sign/up", func(ctx *fiber.Ctx) error {
+	a.Post("/signup", func(ctx *fiber.Ctx) error {
 		return controllers.CreateCustomer(ctx, customerClient)
 	})
-	a.Post("/sign/in", func(ctx *fiber.Ctx) error {
+	a.Get("/signin", func(ctx *fiber.Ctx) error {
 		return controllers.SignInCustomer(ctx, customerClient)
 	})
 }

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/swagger"
@@ -10,7 +9,6 @@ import (
 	mygrpc "github.com/selfscrfc/PetBank/internal/grpc"
 	"github.com/selfscrfc/PetBank/pkg/logger"
 	"github.com/selfscrfc/PetBank/pkg/routes"
-	Customers "github.com/selfscrfc/PetBankProtos/proto/Customers"
 	log "log"
 )
 
@@ -38,12 +36,6 @@ func main() {
 	app := fiber.New()
 
 	customerClient, err := mygrpc.NewCustomerClient(cfg)
-
-	_, err = (*customerClient).Create(context.Background(), &Customers.CreateRequest{
-		FullName: "123",
-		Login:    "123",
-		Password: "123",
-	})
 
 	if err != nil {
 		log.Error("Customer client connection error " + err.Error())

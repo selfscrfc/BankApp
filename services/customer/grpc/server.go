@@ -5,9 +5,11 @@ import (
 	"database/sql"
 	qb "github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
+	"github.com/pkg/errors"
 	"github.com/selfscrfc/PetBank/api/models"
 	"github.com/selfscrfc/PetBank/utils"
 	customers "github.com/selfscrfc/PetBankProtos/proto/Customers"
+	"golang.org/x/crypto/bcrypt"
 	"time"
 )
 
@@ -57,17 +59,10 @@ func (c CustomerServer) Create(ctx context.Context, request *customers.CreateReq
 }
 
 func (c CustomerServer) GetDetails(ctx context.Context, request *customers.GetDetailsRequest) (*customers.GetDetailsResponse, error) {
-	id_, err := uuid.Parse(request.Id)
-	if err != nil {
-		return nil, err
-	}
-	cs := &models.Customer{
-		Id: id_,
-	}
-
 	query := qb.Select(ColumnsCustomer).
 		From(TableCustomers).
-		Where("id = $?", cs.Id.String()).
+		Where("id=$1", request.Id).
+		PlaceholderFormat(qb.Dollar).
 		RunWith(DB)
 
 	res, err := query.Query()
@@ -75,8 +70,16 @@ func (c CustomerServer) GetDetails(ctx context.Context, request *customers.GetDe
 		return nil, err
 	}
 
+	id_, err := uuid.Parse(request.Id)
+	if err != nil {
+		return nil, err
+	}
+	cs := &models.Customer{
+		Id: id_,
+	}
+	time_ := cs.TimeCreated.Unix()
 	res.Next()
-	err = res.Scan(&cs.Id, &cs.FullName, &cs.TimeCreated, &cs.Login, &cs.Password, &cs.IsBlocked)
+	err = res.Scan(&cs.Id, &cs.FullName, &time_, &cs.Login, &cs.Password, &cs.IsBlocked)
 
 	if err != nil {
 		return nil, err
@@ -87,38 +90,22 @@ func (c CustomerServer) GetDetails(ctx context.Context, request *customers.GetDe
 	return &customers.GetDetailsResponse{
 		Id:        cs.Id.String(),
 		FullName:  cs.FullName,
-		Time:      cs.TimeCreated.Unix(),
+		Time:      time_,
 		Login:     cs.Login,
 		IsBlocked: cs.IsBlocked,
 	}, nil
 }
 
 func (c CustomerServer) Block(ctx context.Context, request *customers.BlockRequest) (*customers.BlockResponse, error) {
-	id_, err := uuid.Parse(request.BlockId)
-	if err != nil {
-		return nil, err
-	}
-	cs := &models.Customer{
-		Id: id_,
-	}
-
 	query := qb.Update(TableCustomers).
-		Set("isblocked", true).
-		Where("id = $?", cs.Id.String()).
+		Set("isblocked=$1", true).
+		Where("id=$1", request.BlockId).
+		PlaceholderFormat(qb.Dollar).
 		RunWith(DB)
 
-	res, err := query.Query()
-	if err != nil {
+	if _, err := query.Exec(); err != nil {
 		return nil, err
 	}
-
-	res.Next()
-	err = res.Scan(&cs.Id, &cs.FullName, &cs.TimeCreated, &cs.Login, &cs.Password, &cs.IsBlocked)
-	if err != nil {
-		return nil, err
-	}
-
-	cs.Password = ""
 
 	return &customers.BlockResponse{
 		Success: true,
@@ -135,6 +122,7 @@ func (c CustomerServer) GetAll(ctx context.Context, request *customers.GetAllReq
 		RunWith(DB)
 
 	res, err := query.Query()
+	defer res.Close()
 	if err != nil {
 		return nil, err
 	}
@@ -152,4 +140,36 @@ func (c CustomerServer) GetAll(ctx context.Context, request *customers.GetAllReq
 	return &customers.GetAllResponse{
 		Customers: csa,
 	}, nil
+}
+
+func (c CustomerServer) SignIn(ctx context.Context, request *customers.SignInRequest) (*customers.SignInResponse, error) {
+	query := qb.Select(ColumnsCustomer).
+		From(TableCustomers).
+		Where("login=$1", request.Login).
+		PlaceholderFormat(qb.Dollar).
+		RunWith(DB)
+
+	res, err := query.Query()
+	defer res.Close()
+
+	if err != nil {
+		return nil, err
+	}
+
+	resp := &customers.SignInResponse{}
+	pass := ""
+
+	if !res.Next() {
+		return nil, errors.New("User not found")
+	}
+
+	if err = res.Scan(&resp.Id, &resp.FullName, &resp.Time, &resp.Login, &pass, &resp.IsBlocked); err != nil {
+		return nil, err
+	}
+
+	if err = bcrypt.CompareHashAndPassword([]byte(pass), []byte(request.Password)); err != nil {
+		return nil, err
+	}
+
+	return resp, nil
 }
