@@ -1,13 +1,17 @@
 package main
 
 import (
+	"context"
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/swagger"
-	_ "github.com/selfscrfc/PetBank/api/docs"
 	"github.com/selfscrfc/PetBank/config"
+	_ "github.com/selfscrfc/PetBank/docs"
 	mygrpc "github.com/selfscrfc/PetBank/internal/grpc"
 	"github.com/selfscrfc/PetBank/pkg/logger"
 	"github.com/selfscrfc/PetBank/pkg/routes"
+	Customers "github.com/selfscrfc/PetBankProtos/proto/Customers"
+	log "log"
 )
 
 // @title PetBank API
@@ -17,6 +21,8 @@ import (
 // @host localhost:3000
 // @BasePath /
 func main() {
+	log.Println("Starting API server")
+
 	cfg, err := config.LoadConfig()
 
 	if err != nil {
@@ -29,14 +35,15 @@ func main() {
 		panic("Parse logger " + err.Error())
 	}
 
-	log.Infof("App started on port %s. %s %s",
-		cfg.GRPC.Port,
-		cfg.Server.Mode,
-		cfg.Server.AppVersion)
-
 	app := fiber.New()
 
 	customerClient, err := mygrpc.NewCustomerClient(cfg)
+
+	_, err = (*customerClient).Create(context.Background(), &Customers.CreateRequest{
+		FullName: "123",
+		Login:    "123",
+		Password: "123",
+	})
 
 	if err != nil {
 		log.Error("Customer client connection error " + err.Error())
@@ -51,8 +58,14 @@ func main() {
 	routes.PrivateRoutes(app, customerClient, accountsClient)
 	routes.PublicRoutes(app, customerClient, accountsClient)
 
+	log.Infof("App info: port :%s Mode: %s Version: %s",
+		cfg.Server.Port,
+		cfg.Server.Mode,
+		cfg.Server.AppVersion)
+
 	app.Get("/swagger/*", swagger.HandlerDefault)
-	if err = app.Listen(":3000"); err != nil {
+	if err = app.Listen(fmt.Sprintf(":%s", cfg.Server.Port)); err != nil {
 		log.Error("Server listen error ", err.Error())
 	}
+
 }

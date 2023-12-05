@@ -1,3 +1,8 @@
+grpc:
+  CustomerServicePort: 50051
+  AccountsServicePort: 50052
+  Timeout: 10
+
 server:
   AppVersion: 1.0.0
   Port: :5000

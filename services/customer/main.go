@@ -1,30 +1,32 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
-
-	cServer "github.com/selfscrfc/PetBank/customer/server"
+	"github.com/pressly/goose/v3"
+	cServer "github.com/selfscrfc/PetBank/customer/grpc"
 	"github.com/selfscrfc/PetBank/utils"
 	"github.com/selfscrfc/PetBankProtos/proto/Customers"
 	"google.golang.org/grpc"
 	"log"
 	"net"
+	"os"
 )
 
-var DB *sql.DB
-
-var port = 50051
-
 func main() {
-	log.Println("Customer Service Starts on port: ", port)
-	lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", port))
+
+	port := os.Getenv("SERVER_PORT")
+
+	log.Println("Customer Service Starts on port:", port)
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", port))
+
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	cServer.DB, err = utils.PostgreSQLConnection()
-
 	if err != nil {
+		log.Fatalf("DB connection fail: " + err.Error())
+	}
+	if err = goose.Up(cServer.DB, "migrations"); err != nil {
 		log.Fatalf(err.Error())
 	}
 

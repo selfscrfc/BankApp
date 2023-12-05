@@ -11,9 +11,9 @@ func PublicRoutes(a *fiber.App, customerClient *customers.CustomerClient,
 	accountsClient *account.AccountServiceClient) {
 
 	a.Post("/sign/up", func(ctx *fiber.Ctx) error {
-		return controllers.CreateUser(ctx, customerClient)
+		return controllers.CreateCustomer(ctx, customerClient)
 	})
 	a.Post("/sign/in", func(ctx *fiber.Ctx) error {
-		return controllers.SignInUser(ctx, customerClient)
+		return controllers.SignInCustomer(ctx, customerClient)
 	})
 }

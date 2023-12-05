@@ -35,8 +35,9 @@ type ServerConfig struct {
 }
 
 type GRPCConfig struct {
-	Port    int
-	Timeout time.Duration
+	CustomerServicePort int
+	AccountsServicePort int
+	Timeout             time.Duration
 }
 
 func LoadConfig() (*Config, error) {
