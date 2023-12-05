@@ -10,27 +10,29 @@ import (
 func PrivateRoutes(a *fiber.App, customerClient *customers.CustomerClient,
 	accountsClient *account.AccountServiceClient) {
 
-	a.Get("/getaccountdetails", func(ctx *fiber.Ctx) error {
+	a.Get("/getaccountdetails/:userid/:id", func(ctx *fiber.Ctx) error {
 		return controllers.GetAccountDetails(ctx, accountsClient)
 	})
 	a.Get("/getallaccounts", func(ctx *fiber.Ctx) error {
 		return controllers.GetAllAccounts(ctx, accountsClient)
 	})
+	a.Post("/newaccount", func(ctx *fiber.Ctx) error {
+		return controllers.CreateAccount(ctx, accountsClient)
+	})
+	a.Post("/blockaccount", func(ctx *fiber.Ctx) error {
+		return controllers.BlockAccount(ctx, accountsClient)
+	})
+	a.Post("/balance", func(ctx *fiber.Ctx) error {
+		return controllers.RW(ctx, accountsClient)
+	})
+
 	a.Get("/user/:id", func(ctx *fiber.Ctx) error {
 		return controllers.GetCustomerDetails(ctx, customerClient)
 	})
 	a.Get("/getallusers", func(ctx *fiber.Ctx) error {
 		return controllers.GetAllCustomers(ctx, customerClient)
 	})
-
-	a.Post("/newaccount", func(ctx *fiber.Ctx) error {
-		return controllers.CreateAccount(ctx, accountsClient)
-	})
-
-	a.Delete("/account", func(ctx *fiber.Ctx) error {
-		return controllers.BlockAccount(ctx, accountsClient)
-	})
-	a.Get("/user/:id/block", func(ctx *fiber.Ctx) error {
+	a.Get("/user/block/:id", func(ctx *fiber.Ctx) error {
 		return controllers.BlockCustomer(ctx, customerClient)
 	})
 }

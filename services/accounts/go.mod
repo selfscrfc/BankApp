@@ -5,6 +5,7 @@ go 1.21.4
 require (
 	github.com/Masterminds/squirrel v1.5.4
 	github.com/google/uuid v1.4.0
+	github.com/pkg/errors v0.9.1
 	github.com/pressly/goose v2.7.0+incompatible
 	github.com/selfscrfc/PetBank v0.0.0-20231205073545-a65f1834c248
 	github.com/selfscrfc/PetBankProtos v0.0.0-20231205182408-c280c7e44cf6
@@ -31,7 +32,6 @@ require (
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.15 // indirect
-	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rivo/uniseg v0.4.4 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.51.0 // indirect

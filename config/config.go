@@ -9,29 +9,15 @@ import (
 
 // App config struct
 type Config struct {
-	GRPC     GRPCConfig
-	Server   ServerConfig
-	Postgres PostgresConfig
-
-	Cookie  Cookie
-	Store   Store
-	Session Session
-	Logger  Logger
+	GRPC   GRPCConfig
+	Server ServerConfig
+	Logger Logger
 }
 
 type ServerConfig struct {
-	AppVersion        string
-	Port              string
-	PprofPort         string
-	Mode              string
-	JwtSecretKey      string
-	CookieName        string
-	ReadTimeout       time.Duration
-	WriteTimeout      time.Duration
-	SSL               bool
-	CtxDefaultTimeout time.Duration
-	CSRF              bool
-	Debug             bool
+	AppVersion string
+	Port       string
+	Mode       string
 }
 
 type GRPCConfig struct {
@@ -85,48 +71,4 @@ type Logger struct {
 	DisableStacktrace bool
 	Encoding          string
 	Level             string
-}
-
-// Postgresql config
-type PostgresConfig struct {
-	PostgresqlHost     string
-	PostgresqlPort     string
-	PostgresqlUser     string
-	PostgresqlPassword string
-	PostgresqlDbname   string
-	PostgresqlSSLMode  bool
-	PgDriver           string
-}
-
-// Cookie config
-type Cookie struct {
-	Name     string
-	MaxAge   int
-	Secure   bool
-	HTTPOnly bool
-}
-
-// Session config
-type Session struct {
-	Prefix string
-	Name   string
-	Expire int
-}
-
-// Metrics config
-type Metrics struct {
-	URL         string
-	ServiceName string
-}
-
-// Store config
-type Store struct {
-	ImagesFolder string
-}
-
-// AWS S3
-type Jaeger struct {
-	Host        string
-	ServiceName string
-	LogSpans    bool
 }

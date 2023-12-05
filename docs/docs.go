@@ -29,10 +29,10 @@ const docTemplate = `{
                 "tags": [
                     "Accounts"
                 ],
-                "summary": "create",
+                "summary": "replenish / withdraw account",
                 "parameters": [
                     {
-                        "description": "data",
+                        "description": "accountId (uuid string) , userid (uuid string) , amount (int) | {",
                         "name": "data",
                         "in": "body",
                         "required": true,
@@ -52,7 +52,7 @@ const docTemplate = `{
             }
         },
         "/blockaccount": {
-            "get": {
+            "post": {
                 "consumes": [
                     "application/json"
                 ],
@@ -62,21 +62,16 @@ const docTemplate = `{
                 "tags": [
                     "Accounts"
                 ],
-                "summary": "create",
+                "summary": "block acc from operations",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "userid",
-                        "name": "userid",
-                        "in": "path",
-                        "required": true
+                        "description": "id (uuid string) , userid (uuid string) | {",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {
@@ -89,7 +84,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/getaccountdetails": {
+        "/getaccountdetails/{userid}/{id}": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -100,19 +95,19 @@ const docTemplate = `{
                 "tags": [
                     "Accounts"
                 ],
-                "summary": "create",
+                "summary": "get account details",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "id",
-                        "name": "id",
+                        "description": "userid uuid string",
+                        "name": "userid",
                         "in": "path",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "userid",
-                        "name": "userid",
+                        "description": "id uuid string",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -135,7 +130,7 @@ const docTemplate = `{
                 "tags": [
                     "Accounts"
                 ],
-                "summary": "create",
+                "summary": "get all accounts",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -185,10 +180,10 @@ const docTemplate = `{
                 "tags": [
                     "Accounts"
                 ],
-                "summary": "create",
+                "summary": "create new account",
                 "parameters": [
                     {
-                        "description": "Userid, IsCredit, Balance, Currency",
+                        "description": "Userid (string) , IsCredit (bool) , Balance (int) , Currency (1-3) | {",
                         "name": "data",
                         "in": "body",
                         "required": true,
@@ -218,11 +213,11 @@ const docTemplate = `{
                 "tags": [
                     "Users"
                 ],
-                "summary": "Sign in",
+                "summary": "sign in (no functionality yet)",
                 "parameters": [
                     {
-                        "description": "id",
-                        "name": "id",
+                        "description": "login (uuid string) , password (uuid string) | {",
+                        "name": "data",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -254,7 +249,7 @@ const docTemplate = `{
                 "summary": "create",
                 "parameters": [
                     {
-                        "description": "data",
+                        "description": "Fullname (string) , Login (string) , Password (string) | {",
                         "name": "data",
                         "in": "body",
                         "required": true,
@@ -269,6 +264,34 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/models.Customer"
                         }
+                    }
+                }
+            }
+        },
+        "/user/block/{id}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Block user by himself with id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "uuid",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
                     }
                 }
             }
@@ -300,34 +323,6 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/models.Customer"
                         }
-                    }
-                }
-            }
-        },
-        "/user/{id}/block": {
-            "get": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Users"
-                ],
-                "summary": "Block user by himself with id",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
                     }
                 }
             }

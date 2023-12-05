@@ -5,7 +5,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/selfscrfc/PetBank/api/models"
-	"github.com/selfscrfc/PetBank/utils"
 	Customers "github.com/selfscrfc/PetBankProtos/proto/Customers"
 	"time"
 )
@@ -15,7 +14,7 @@ import (
 // @Tags Users
 // @Accept json
 // @Produce json
-// @Param data body string true "data"
+// @Param data body string true "Fullname (string) , Login (string) , Password (string) | {"fullname":"","login":"","password":""}"
 // @Success 200 {object} models.Customer
 // @Router /signup [post]
 func CreateCustomer(c *fiber.Ctx, client *Customers.CustomerClient) error {
@@ -30,25 +29,10 @@ func CreateCustomer(c *fiber.Ctx, client *Customers.CustomerClient) error {
 		})
 	}
 
-	validator := utils.NewValidator()
-
-	if err := validator.Struct(sign); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": true,
-			"msg":   utils.ValidatorErrors(err),
-		})
-	}
-
-	customer := &models.Customer{
+	resp, err := (*client).Create(ctx, &Customers.CreateRequest{
 		FullName: sign.FullName,
 		Login:    sign.Login,
 		Password: sign.Password,
-	}
-
-	resp, err := (*client).Create(ctx, &Customers.CreateRequest{
-		FullName: customer.FullName,
-		Login:    customer.Login,
-		Password: customer.Password,
 	})
 
 	if err != nil {
@@ -58,6 +42,12 @@ func CreateCustomer(c *fiber.Ctx, client *Customers.CustomerClient) error {
 		})
 	}
 
+	customer := &models.Customer{
+		FullName: sign.FullName,
+		Login:    sign.Login,
+		Password: sign.Password,
+	}
+
 	customer.Id, err = uuid.Parse(resp.Id)
 	if err != nil {
 		return c.Status(fiber.StatusConflict).JSON(fiber.Map{
@@ -65,6 +55,7 @@ func CreateCustomer(c *fiber.Ctx, client *Customers.CustomerClient) error {
 			"msg":   "uuid parse error: " + err.Error(),
 		})
 	}
+
 	customer.TimeCreated = time.Unix(resp.Time, 0)
 	customer.IsBlocked = false
 	customer.Password = ""
@@ -124,9 +115,9 @@ func GetCustomerDetails(c *fiber.Ctx, client *Customers.CustomerClient) error {
 // @Tags Users
 // @Accept json
 // @Produce json
-// @Param id path string true "id"
+// @Param id path string true "uuid"
 // @Success 200
-// @Router /user/{id}/block [get]
+// @Router /user/block/{id} [get]
 func BlockCustomer(c *fiber.Ctx, client *Customers.CustomerClient) error {
 	ctx := context.Background()
 
@@ -145,16 +136,16 @@ func BlockCustomer(c *fiber.Ctx, client *Customers.CustomerClient) error {
 
 	return c.JSON(fiber.Map{
 		"error": false,
-		"msg":   nil,
+		"msg":   "block successful",
 	})
 }
 
 // SignInCustomer	godoc
-// @Summary		Sign in
+// @Summary		sign in (no functionality yet)
 // @Tags Users
 // @Accept json
 // @Produce json
-// @Param id body string true "id"
+// @Param data body string true "login (uuid string) , password (uuid string) | {"login":"","password":""}"
 // @Success 200 {object} models.Customer
 // @Router /signin [post]
 func SignInCustomer(c *fiber.Ctx, client *Customers.CustomerClient) error {
@@ -173,7 +164,7 @@ func SignInCustomer(c *fiber.Ctx, client *Customers.CustomerClient) error {
 		Login:    customer.Login,
 		Password: customer.Password,
 	})
-
+	customer.Password = "***"
 	if err != nil {
 		return c.Status(fiber.StatusConflict).JSON(fiber.Map{
 			"error": true,

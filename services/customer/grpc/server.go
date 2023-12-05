@@ -98,8 +98,8 @@ func (c CustomerServer) GetDetails(ctx context.Context, request *customers.GetDe
 
 func (c CustomerServer) Block(ctx context.Context, request *customers.BlockRequest) (*customers.BlockResponse, error) {
 	query := qb.Update(TableCustomers).
-		Set("isblocked=$1", true).
-		Where("id=$1", request.BlockId).
+		Set("isblocked=$1", "true").
+		Where("id=$2", request.BlockId).
 		PlaceholderFormat(qb.Dollar).
 		RunWith(DB)
 
@@ -123,6 +123,7 @@ func (c CustomerServer) GetAll(ctx context.Context, request *customers.GetAllReq
 
 	res, err := query.Query()
 	defer res.Close()
+
 	if err != nil {
 		return nil, err
 	}
@@ -165,6 +166,10 @@ func (c CustomerServer) SignIn(ctx context.Context, request *customers.SignInReq
 
 	if err = res.Scan(&resp.Id, &resp.FullName, &resp.Time, &resp.Login, &pass, &resp.IsBlocked); err != nil {
 		return nil, err
+	}
+
+	if resp.IsBlocked == true {
+		return nil, errors.New("account is blocked")
 	}
 
 	if err = bcrypt.CompareHashAndPassword([]byte(pass), []byte(request.Password)); err != nil {

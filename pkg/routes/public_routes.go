@@ -13,7 +13,7 @@ func PublicRoutes(a *fiber.App, customerClient *customers.CustomerClient,
 	a.Post("/signup", func(ctx *fiber.Ctx) error {
 		return controllers.CreateCustomer(ctx, customerClient)
 	})
-	a.Get("/signin", func(ctx *fiber.Ctx) error {
+	a.Post("/signin", func(ctx *fiber.Ctx) error {
 		return controllers.SignInCustomer(ctx, customerClient)
 	})
 }
