@@ -56,7 +56,7 @@ services:
       - DB_PORT=5432
       - DB_USER=postgres
       - DB_PASSWORD=postgres
-      - DB_NAME=customer_db
+      - DB_NAME=account_db
       - DB_SSL_MODE=disable
     depends_on:
       - account_postgresql

@@ -7,7 +7,7 @@ require (
 	github.com/google/uuid v1.4.0
 	github.com/pressly/goose v2.7.0+incompatible
 	github.com/selfscrfc/PetBank v0.0.0-20231205073545-a65f1834c248
-	github.com/selfscrfc/PetBankProtos v0.0.0-20231205074931-9b21be5ddbf9
+	github.com/selfscrfc/PetBankProtos v0.0.0-20231205182408-c280c7e44cf6
 	google.golang.org/grpc v1.59.0
 )
 
