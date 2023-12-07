@@ -1,0 +1,16 @@
+grpc:
+  CustomerServicePort: 50051
+  AccountsServicePort: 50052
+  Timeout: 10
+
+server:
+  AppVersion: 1.0.0
+  Port: 3000
+  Mode: Development
+
+logger:
+  Development: true
+  DisableCaller: false
+  DisableStacktrace: false
+  Encoding: json
+  Level: info

@@ -22,11 +22,11 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	cServer.DB, err = utils.PostgreSQLConnection()
+	cServer.CR.DB, err = utils.PostgreSQLConnection()
 	if err != nil {
 		log.Fatalf("DB connection fail: " + err.Error())
 	}
-	if err = goose.Up(cServer.DB, "migrations"); err != nil {
+	if err = goose.Up(cServer.CR.DB, "migrations"); err != nil {
 		log.Fatalf(err.Error())
 	}
 
@@ -34,7 +34,7 @@ func main() {
 
 	customers.RegisterCustomerServer(grpcServer, cServer.CustomerServer{})
 
-	if err := grpcServer.Serve(lis); err != nil {
+	if err = grpcServer.Serve(lis); err != nil {
 		log.Fatalf(err.Error())
 	}
 }

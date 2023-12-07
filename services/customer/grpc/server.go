@@ -3,107 +3,61 @@ package grpccustomerserver
 import (
 	"context"
 	"database/sql"
-	qb "github.com/Masterminds/squirrel"
-	"github.com/google/uuid"
-	"github.com/pkg/errors"
-	"github.com/selfscrfc/PetBank/api/models"
-	"github.com/selfscrfc/PetBank/utils"
+	"github.com/selfscrfc/PetBank/customer/repository"
 	customers "github.com/selfscrfc/PetBankProtos/proto/Customers"
-	"golang.org/x/crypto/bcrypt"
-	"time"
 )
 
-var DB *sql.DB
+var CR = &repository.CustomerRepo{DB: &sql.DB{}}
 
 type CustomerServer struct {
 	customers.UnimplementedCustomerServer
 }
 
-const (
-	TableCustomers  = "customers"
-	ColumnsCustomer = "id, fullname, time, login, password, isblocked"
-)
-
-type customerRepo struct {
-	db *sql.DB
-}
-
 func (c CustomerServer) Create(ctx context.Context, request *customers.CreateRequest) (*customers.CreateResponse, error) {
-	cs := &models.Customer{
-		Id:          uuid.New(),
-		TimeCreated: time.Now(),
-		FullName:    request.FullName,
-		Login:       request.Login,
-		Password:    utils.GeneratePassword(request.Password),
-		IsBlocked:   false,
+	cs := &customers.CustomerEntity{
+		FullName:  request.FullName,
+		Login:     request.Login,
+		IsBlocked: false,
 	}
 
-	query := qb.Insert(TableCustomers).
-		Columns(ColumnsCustomer).
-		Values(cs.Id.String(), cs.FullName, cs.TimeCreated.Unix(), cs.Login, cs.Password, cs.IsBlocked).
-		PlaceholderFormat(qb.Dollar).
-		RunWith(DB)
+	cs, err := CR.CreateCustomerQuery(cs, request.Password)
 
-	_, err := query.Exec()
 	if err != nil {
 		return nil, err
 	}
 
 	return &customers.CreateResponse{
-		Id:       cs.Id.String(),
+		Id:       cs.Id,
 		FullName: cs.FullName,
-		Time:     cs.TimeCreated.Unix(),
+		Time:     cs.Time,
 		Login:    cs.Login,
 		Password: "",
 	}, nil
 }
 
 func (c CustomerServer) GetDetails(ctx context.Context, request *customers.GetDetailsRequest) (*customers.GetDetailsResponse, error) {
-	query := qb.Select(ColumnsCustomer).
-		From(TableCustomers).
-		Where("id=$1", request.Id).
-		PlaceholderFormat(qb.Dollar).
-		RunWith(DB)
+	cs := &customers.CustomerEntity{
+		Id: request.Id,
+	}
 
-	res, err := query.Query()
+	cs, err := CR.GetCustomerDetailsQuery(cs)
 	if err != nil {
 		return nil, err
 	}
-
-	id_, err := uuid.Parse(request.Id)
-	if err != nil {
-		return nil, err
-	}
-	cs := &models.Customer{
-		Id: id_,
-	}
-	time_ := cs.TimeCreated.Unix()
-	res.Next()
-	err = res.Scan(&cs.Id, &cs.FullName, &time_, &cs.Login, &cs.Password, &cs.IsBlocked)
-
-	if err != nil {
-		return nil, err
-	}
-
-	cs.Password = ""
 
 	return &customers.GetDetailsResponse{
-		Id:        cs.Id.String(),
+		Id:        cs.Id,
 		FullName:  cs.FullName,
-		Time:      time_,
+		Time:      cs.Time,
 		Login:     cs.Login,
 		IsBlocked: cs.IsBlocked,
 	}, nil
 }
 
 func (c CustomerServer) Block(ctx context.Context, request *customers.BlockRequest) (*customers.BlockResponse, error) {
-	query := qb.Update(TableCustomers).
-		Set("isblocked=$1", "true").
-		Where("id=$2", request.BlockId).
-		PlaceholderFormat(qb.Dollar).
-		RunWith(DB)
+	_, err := CR.BlockAccountQuery(request.BlockId)
 
-	if _, err := query.Exec(); err != nil {
+	if err != nil {
 		return nil, err
 	}
 
@@ -114,29 +68,12 @@ func (c CustomerServer) Block(ctx context.Context, request *customers.BlockReque
 
 func (c CustomerServer) GetAll(ctx context.Context, request *customers.GetAllRequest) (*customers.GetAllResponse, error) {
 	csa := make([]*customers.CustomerEntity, 0)
-	mock := ""
-	mockp := &mock
 
-	query := qb.Select("*").
-		From(TableCustomers).
-		RunWith(DB)
-
-	res, err := query.Query()
-	defer res.Close()
+	csa, err := CR.GetAllCustomersQuery(csa)
 
 	if err != nil {
 		return nil, err
 	}
-
-	for res.Next() {
-		cs := &customers.CustomerEntity{}
-		err = res.Scan(&cs.Id, &cs.FullName, &cs.Time, &cs.Login, mockp, &cs.IsBlocked)
-		if err != nil {
-			return nil, err
-		}
-		csa = append(csa, cs)
-	}
-	*mockp = ""
 
 	return &customers.GetAllResponse{
 		Customers: csa,
@@ -144,37 +81,17 @@ func (c CustomerServer) GetAll(ctx context.Context, request *customers.GetAllReq
 }
 
 func (c CustomerServer) SignIn(ctx context.Context, request *customers.SignInRequest) (*customers.SignInResponse, error) {
-	query := qb.Select(ColumnsCustomer).
-		From(TableCustomers).
-		Where("login=$1", request.Login).
-		PlaceholderFormat(qb.Dollar).
-		RunWith(DB)
-
-	res, err := query.Query()
-	defer res.Close()
+	resp, err := CR.SignInQuery(request.Login, request.Password)
 
 	if err != nil {
 		return nil, err
 	}
 
-	resp := &customers.SignInResponse{}
-	pass := ""
-
-	if !res.Next() {
-		return nil, errors.New("User not found")
-	}
-
-	if err = res.Scan(&resp.Id, &resp.FullName, &resp.Time, &resp.Login, &pass, &resp.IsBlocked); err != nil {
-		return nil, err
-	}
-
-	if resp.IsBlocked == true {
-		return nil, errors.New("account is blocked")
-	}
-
-	if err = bcrypt.CompareHashAndPassword([]byte(pass), []byte(request.Password)); err != nil {
-		return nil, err
-	}
-
-	return resp, nil
+	return &customers.SignInResponse{
+		Id:        resp.Id,
+		FullName:  resp.FullName,
+		Time:      resp.Time,
+		Login:     resp.Login,
+		IsBlocked: resp.IsBlocked,
+	}, nil
 }

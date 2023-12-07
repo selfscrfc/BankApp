@@ -32,7 +32,7 @@ const docTemplate = `{
                 "summary": "replenish / withdraw account",
                 "parameters": [
                     {
-                        "description": "accountId (uuid string) , userid (uuid string) , amount (int) | {",
+                        "description": "accountId (uuid string) , userid (uuid string) , amount (int) | {/%22",
                         "name": "data",
                         "in": "body",
                         "required": true,

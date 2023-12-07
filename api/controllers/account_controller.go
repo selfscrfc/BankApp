@@ -178,7 +178,7 @@ func BlockAccount(c *fiber.Ctx, client *Accounts.AccountServiceClient) error {
 // @Tags Accounts
 // @Accept json
 // @Produce json
-// @Param data body string true "accountId (uuid string) , userid (uuid string) , amount (int) | {"aId":"","uId":"","amount":}"
+// @Param data body string true "accountId (uuid string) , userid (uuid string) , amount (int) | {"aId":\"\",\"uId\":\"\",\"amount\":}"
 // @Success 200 {object} models.Account
 // @Router /balance [post]
 func RW(c *fiber.Ctx, client *Accounts.AccountServiceClient) error {

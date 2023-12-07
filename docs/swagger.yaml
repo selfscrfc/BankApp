@@ -42,7 +42,7 @@ paths:
       - application/json
       parameters:
       - description: accountId (uuid string) , userid (uuid string) , amount (int)
-          | {
+          | {/%22
         in: body
         name: data
         required: true

@@ -21,11 +21,11 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	aServer.DB, err = utils.PostgreSQLConnection()
+	aServer.AR.DB, err = utils.PostgreSQLConnection()
 	if err != nil {
 		log.Fatalf("DB connection fail: " + err.Error())
 	}
-	if err = goose.Up(aServer.DB, "migrations"); err != nil {
+	if err = goose.Up(aServer.AR.DB, "migrations"); err != nil {
 		log.Fatalf(err.Error())
 	}
 

@@ -30,10 +30,10 @@ func LoadConfig() (*Config, error) {
 	path := os.Getenv("CONFIG_PATH")
 	var cfgName string
 	if path == "" {
-		path = "../"
-		cfgName = "./config/config-local"
+		path = "./config"
+		cfgName = "config-local"
 	} else {
-		cfgName = "./config/config-docker"
+		cfgName = "config-docker"
 	}
 
 	if _, err := os.Stat(path); os.IsNotExist(err) {
